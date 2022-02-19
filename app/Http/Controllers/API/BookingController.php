@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Booking;
 use App\Hospital;
 use Validator;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends ResponseController
 {
@@ -17,14 +18,20 @@ class BookingController extends ResponseController
      */
     public function index()
     {
-        //
-        $bookings = Booking::orderBy('created_at', 'desc')->get();
-        foreach ($bookings as $booking) {
-            $booking['hospital'] = Hospital::where('id', $booking['hospitalId'])->first();
+        $user = Auth::guard('api')->user();
+        if ($user) {
+            // $bookings = Booking::orderBy('created_at', 'desc')->get();
+            $bookings = Booking::where('userId', $user->id)->get();
+            foreach ($bookings as $booking) {
+                $booking['hospital'] = Hospital::where('id', $booking['hospitalId'])->first();
+            }
+            $success['data'] = $bookings;
+            $success['message'] = 'Bookings List';
+            return $this->sendResponse($success);
+        } else {
+            $error = "Sorry! Current User Not Found!!";
+            return $this->sendError($error, 401);
         }
-        $success['data'] = $bookings;
-        $success['message'] = 'Bookings List';
-        return $this->sendResponse($success);
     }
 
     /**
@@ -47,10 +54,10 @@ class BookingController extends ResponseController
     {
         $booking = Booking::create([
             'userId' => $request->userId,
-            'hospitalId'=>$request->hospitalId,
-            'bookingType'=>$request->bookingType,
-            'quantity'=>$request->quantity,
-            'bookingDate'=>$request->bookingDate
+            'hospitalId' => $request->hospitalId,
+            'bookingType' => $request->bookingType,
+            'quantity' => $request->quantity,
+            'bookingDate' => $request->bookingDate
         ]);
         if ($booking) {
             $success['data'] =  $booking;
