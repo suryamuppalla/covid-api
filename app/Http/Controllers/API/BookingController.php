@@ -8,6 +8,7 @@ use App\Booking;
 use App\Hospital;
 use Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class BookingController extends ResponseController
 {
@@ -21,9 +22,9 @@ class BookingController extends ResponseController
         $user = Auth::guard('api')->user();
         if ($user) {
             // $bookings = Booking::orderBy('created_at', 'desc')->get();
-            $bookings = Booking::where('userId', $user->id)->get();
+            $bookings = Booking::where('userId', $user->id)->orderBy('created_at', 'DESC')->get();
             foreach ($bookings as $booking) {
-                $booking['hospital'] = Hospital::where('id', $booking['hospitalId'])->first();
+                $booking['hospital'] = Hospital::where('id', $booking['hospitalId'])->first()->name;
             }
             $success['data'] = $bookings;
             $success['message'] = 'Bookings List';
@@ -52,17 +53,35 @@ class BookingController extends ResponseController
      */
     public function store(Request $request)
     {
-        $booking = Booking::create([
-            'userId' => $request->userId,
-            'hospitalId' => $request->hospitalId,
-            'bookingType' => $request->bookingType,
-            'quantity' => $request->quantity,
-            'bookingDate' => $request->bookingDate
-        ]);
-        if ($booking) {
-            $success['data'] =  $booking;
-            $success['message'] = "Booking Created successfully..";
-            return $this->sendResponse($success);
+        $hospital = Hospital::where('id', $request->hospitalId)->get()->first();
+        if ($hospital) {
+            $bookingType = Str::lower($request->bookingType);
+            $bookingJSON = json_decode($hospital->$bookingType);
+            if ($bookingJSON -> available >= $request -> quantity) {
+                $booking = Booking::create([
+                    'userId' => $request->userId,
+                    'hospitalId' => $request->hospitalId,
+                    'bookingType' => $request->bookingType,
+                    'quantity' => $request->quantity,
+                    'bookingDate' => $request->bookingDate
+                ]);
+                if ($booking) {
+                    $bookingJSON-> available = $bookingJSON -> available - $request -> quantity;
+
+                    $hospital-> $bookingType = json_encode($bookingJSON);
+                    $hospital -> save();
+
+                    $success['data'] =  $booking;
+                    $success['message'] = "Booking Created successfully..";
+                    return $this->sendResponse($success);
+                } else {
+                    $error = "Sorry! Booking Creation is not successful.";
+                    return $this->sendError($error, 401);
+                }
+            } else {
+                $error = 'Insufficient Quantity Requested, Please try with lesser quantity!!';
+                return $this->sendError($error, 500);
+            }
         } else {
             $error = "Sorry! Booking Creation is not successful.";
             return $this->sendError($error, 401);

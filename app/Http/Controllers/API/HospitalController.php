@@ -6,7 +6,8 @@ use App\Http\Controllers\API\ResponseController as ResponseController;
 use Illuminate\Http\Request;
 use App\Hospital;
 use Validator;
-
+use Illuminate\Support\Str;
+use DB;
 class HospitalController extends ResponseController
 {
     /**
@@ -14,10 +15,25 @@ class HospitalController extends ResponseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //
-        $hospitals = Hospital::all();
+        $pinCode = (int) $request->pinCode;
+        $hospitalName = Str::lower($request->hospital);
+
+        $hospitals = Hospital::query();
+
+        if ($pinCode) {
+            $hospitals = $hospitals->where('pinCode', 'LIKE', '%' . $pinCode . '%');
+        }
+        if ($hospitalName) {
+            $hospitals = $hospitals->where(DB::raw('lower(name)'), 'LIKE', '%' . $hospitalName . '%');
+        }
+
+        $hospitals = $hospitals->get();
+        // $hospitals = Hospital::where('name', 'LIKE', "%{$hospitalName}%")
+        //     ->orWhere('pinCode', 'LIKE', "%{$pinCode}%")
+        //     ->get();
         foreach ($hospitals as $hospital) {
             $hospital['bed'] = json_decode($hospital['bed']);
             $hospital['ventilator'] = json_decode($hospital['ventilator']);

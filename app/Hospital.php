@@ -18,4 +18,5 @@ class Hospital extends Model
         'oxygen',
         'isolation'
     ];
+    protected $searchableColumns = ['name', 'pinCode'];
 }
