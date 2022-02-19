@@ -20,6 +20,7 @@ class HospitalController extends ResponseController
         //
         $pinCode = (int) $request->pinCode;
         $hospitalName = Str::lower($request->hospital);
+        $address = Str::lower($request->address);
 
         $hospitals = Hospital::query();
 
@@ -28,6 +29,10 @@ class HospitalController extends ResponseController
         }
         if ($hospitalName) {
             $hospitals = $hospitals->where(DB::raw('lower(name)'), 'LIKE', '%' . $hospitalName . '%');
+        }
+
+        if ($address) {
+            $hospitals = $hospitals->where(DB::raw('lower(address)'), 'LIKE', '%' . $address . '%');
         }
 
         $hospitals = $hospitals->get();
