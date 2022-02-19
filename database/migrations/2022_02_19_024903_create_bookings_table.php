@@ -21,7 +21,7 @@ class CreateBookingsTable extends Migration
             $table->foreign('hospitalId')->references('id')->on('hospitals')->onDelete('cascade');
             $table->string('bookingType');
             $table->integer('quantity');
-            $table->date('bookingDate');
+            $table->string('bookingDate');
             $table->timestamps();
         });
     }
