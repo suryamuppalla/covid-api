@@ -28,3 +28,8 @@ Route::group(['prefix' => 'hospitals'], function() {
     Route::get('', 'API\HospitalController@index');
     Route::post('', 'API\HospitalController@store');
 });
+
+Route::group(['prefix' => 'bookings'], function() {
+    Route::get('', 'API\BookingController@index');
+    Route::post('', 'API\BookingController@store');
+});
