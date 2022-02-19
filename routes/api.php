@@ -14,12 +14,17 @@ use Illuminate\Http\Request;
 */
 
 Route::group([ 'prefix' => 'auth'], function (){
-    Route::group(['middleware' => ['cors', 'guest:api']], function () {
+    Route::group(['middleware' => []], function () {
         Route::post('login', 'API\AuthController@login');
         Route::post('signup', 'API\AuthController@signup');
     });
-    Route::group(['middleware' => ['cors', 'auth:api']], function() {
+    Route::group(['middleware' => ['auth:api']], function() {
         Route::get('logout', 'API\AuthController@logout');
         Route::get('getuser', 'API\AuthController@getUser');
     });
+});
+
+Route::group(['prefix' => 'hospitals'], function() {
+    Route::get('', 'API\HospitalController@index');
+    Route::post('', 'API\HospitalController@store');
 });

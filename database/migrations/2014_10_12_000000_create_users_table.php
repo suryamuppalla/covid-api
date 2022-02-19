@@ -22,10 +22,12 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->string('firstName')->nullable();
             $table->string('lastName')->nullable();
+            $table->string('dob')->nullable();
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
             $table->string('state')->nullable();
             $table->string('pinCode')->nullable();
+            $table->string('registerType')->default(1);
             $table->timestamps();
         });
     }
