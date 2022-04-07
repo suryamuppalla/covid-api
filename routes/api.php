@@ -36,8 +36,8 @@ Route::group(['prefix' => 'hospitals'], function () {
 Route::group(['prefix' => 'bookings'], function() {
     Route::get('', [BookingsController::class, 'index']);
     Route::post('', [BookingsController::class, 'store']);
-    Route::patch('{id}', [BookingsController::class, 'update']);
-    Route::delete('{id}', [BookingsController::class, 'destroy']);
+    Route::post('/update/{id}', [BookingsController::class, 'update']);
+    Route::post('/delete/{id}', [BookingsController::class, 'destroy']);
 });
 
 // Route::apiResource('/hospitals', [HospitalController::class])->middleware('auth:api');
